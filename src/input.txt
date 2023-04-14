@@ -1,2 +1,0 @@
-www.kubernetes.io
-www.github.com
