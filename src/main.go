@@ -14,6 +14,7 @@ type flagRequest struct {
 	getDomainNames  bool
 	getDomainIPs    bool
 	getNamesServers bool
+	getMailServers  bool
 }
 
 var flagRequestStructure flagRequest
@@ -38,6 +39,8 @@ func main() {
 			flagRequestStructure.getDomainIPs = true
 		case "-ns":
 			flagRequestStructure.getNamesServers = true
+		case "-mx":
+			flagRequestStructure.getMailServers = true
 		default:
 			log.Println("Incorrect argument was passed")
 		}
@@ -62,6 +65,12 @@ func main() {
 		nameServers, err := dns.DomainProcess(flagRequestStructure.inputFileFlag, flagRequestStructure.outFileFlag, 'n')
 		if err == nil {
 			fmt.Printf("*domain name servers: %#v\n\n", nameServers)
+		}
+	} else if flagRequestStructure.getMailServers {
+		fmt.Println("List of domain mail servers found:")
+		nameServers, err := dns.DomainProcess(flagRequestStructure.inputFileFlag, flagRequestStructure.outFileFlag, 'm')
+		if err == nil {
+			fmt.Printf("*domain mail servers: %#v\n\n", nameServers)
 		}
 	}
 }

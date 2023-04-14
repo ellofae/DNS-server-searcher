@@ -67,6 +67,9 @@ func DomainProcess(input string, out string, flagSpec byte) ([]string, error) {
 	case 'n':
 		dnsResult, err = getNameServers(inputLog, outFile)
 		return dnsResult, err
+	case 'm':
+		dnsResult, err = getMailServers(inputLog, outFile)
+		return dnsResult, err
 	default:
 		return nil, errors.New("Incorrect flag passed")
 	}
@@ -127,7 +130,7 @@ func getNameServers(inputLog []string, out *os.File) ([]string, error) {
 	for _, domain := range inputLog {
 		NSs, err := net.LookupNS(domain)
 		if err != nil {
-			log.Println("Didn't manage to get a domain name server occured from NS records")
+			log.Println("Didn't manage to get a domain name server from domain NS records occured ")
 			continue
 		}
 
@@ -140,6 +143,27 @@ func getNameServers(inputLog []string, out *os.File) ([]string, error) {
 	}
 
 	return nameServersSlice, nil
+}
+
+func getMailServers(inputLog []string, out *os.File) ([]string, error) {
+	mailServersSlice := make([]string, 0)
+
+	for _, domain := range inputLog {
+		MXs, err := net.LookupMX(domain)
+		if err != nil {
+			log.Println("Didn't manage to get a domain mail server from domain MX records occured")
+			continue
+		}
+
+		for _, mx := range MXs {
+			mailServersSlice = append(mailServersSlice, mx.Host)
+			writeBytesToOutput(domain, mx.Host, out)
+			fmt.Printf("\tFor domain host name %#v found domain mail server: %#v\n", domain, mx.Host)
+		}
+		fmt.Println()
+	}
+
+	return mailServersSlice, nil
 }
 
 // Getting names mapped to an IP address helping function

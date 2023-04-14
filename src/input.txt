@@ -1,2 +1,2 @@
 www.kubernetes.io
-www.amazon.com
+www.github.com
