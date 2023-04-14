@@ -64,8 +64,11 @@ func DomainProcess(input string, out string, flagSpec byte) ([]string, error) {
 	case 'i':
 		dnsResult, err = getDomainIPs(inputLog, outFile)
 		return dnsResult, err
+	case 'n':
+		dnsResult, err = getNameServers(inputLog, outFile)
+		return dnsResult, err
 	default:
-		return nil, errors.New("Not a correct flag passed")
+		return nil, errors.New("Incorrect flag passed")
 	}
 }
 
@@ -93,6 +96,7 @@ func getDomainHosts(inputLog []string, out *os.File) ([]string, error) {
 	return hostsSlice, nil
 }
 
+// Returns IP addresses mapping to the domain host names
 func getDomainIPs(inputLog []string, out *os.File) ([]string, error) {
 	ipsSlice := make([]string, 0)
 
@@ -114,6 +118,28 @@ func getDomainIPs(inputLog []string, out *os.File) ([]string, error) {
 	}
 
 	return ipsSlice, nil
+}
+
+// Getting a domain name server using NS recods of a domain
+func getNameServers(inputLog []string, out *os.File) ([]string, error) {
+	nameServersSlice := make([]string, 0)
+
+	for _, domain := range inputLog {
+		NSs, err := net.LookupNS(domain)
+		if err != nil {
+			log.Println("Didn't manage to get a domain name server occured from NS records")
+			continue
+		}
+
+		for _, ns := range NSs {
+			nameServersSlice = append(nameServersSlice, ns.Host)
+			writeBytesToOutput(domain, ns.Host, out)
+			fmt.Printf("\tFor domain host name %#v found domain name server: %#v\n", domain, ns.Host)
+		}
+		fmt.Println()
+	}
+
+	return nameServersSlice, nil
 }
 
 // Getting names mapped to an IP address helping function

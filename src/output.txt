@@ -1,2 +1,8 @@
-127.0.0.1: localhost
-127.0.1.1: ellofae
+www.kubernetes.io: ns-cloud-a4.googledomains.com.
+www.kubernetes.io: ns-cloud-a3.googledomains.com.
+www.kubernetes.io: ns-cloud-a1.googledomains.com.
+www.kubernetes.io: ns-cloud-a2.googledomains.com.
+www.amazon.com: ns-2021.awsdns-60.co.uk.
+www.amazon.com: ns-130.awsdns-16.com.
+www.amazon.com: ns-1144.awsdns-15.org.
+www.amazon.com: ns-824.awsdns-39.net.
