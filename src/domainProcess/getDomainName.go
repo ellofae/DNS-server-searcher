@@ -11,6 +11,18 @@ import (
 	"strings"
 )
 
+// Writing to an output file
+func writeBytesToOutput(data1 string, data2 string, out *os.File) int {
+	strToWrite := data1 + ": " + data2 + "\n"
+
+	n, err := out.Write([]byte(strToWrite))
+	if err != nil {
+		log.Fatalf("Didn't manage to write to a file: %v\n", err)
+	}
+
+	return n
+}
+
 // DNS search execution
 func DomainProcess(input string, out string, flagSpec byte) ([]string, error) {
 	file, err := os.Open(input)
@@ -18,6 +30,14 @@ func DomainProcess(input string, out string, flagSpec byte) ([]string, error) {
 		log.Println("Didn't manage to open the input file")
 		return nil, err
 	}
+	defer file.Close()
+
+	outFile, err := os.OpenFile(out, os.O_CREATE|os.O_WRONLY|os.O_APPEND, os.ModePerm)
+	if err != nil {
+		log.Printf("Didn't manage to open/create the output file: %v\n", out)
+		return nil, err
+	}
+	defer outFile.Close()
 
 	inputLog := make([]string, 0)
 	reader := bufio.NewReader(file)
@@ -39,10 +59,10 @@ func DomainProcess(input string, out string, flagSpec byte) ([]string, error) {
 	dnsResult := make([]string, 0)
 	switch flagSpec {
 	case 'd':
-		dnsResult, err = getDomainHosts(inputLog)
+		dnsResult, err = getDomainHosts(inputLog, outFile)
 		return dnsResult, err
 	case 'i':
-		dnsResult, err = getDomainIPs(inputLog)
+		dnsResult, err = getDomainIPs(inputLog, outFile)
 		return dnsResult, err
 	default:
 		return nil, errors.New("Not a correct flag passed")
@@ -50,7 +70,7 @@ func DomainProcess(input string, out string, flagSpec byte) ([]string, error) {
 }
 
 // Returns names mapping to the passed IP address
-func getDomainHosts(inputLog []string) ([]string, error) {
+func getDomainHosts(inputLog []string, out *os.File) ([]string, error) {
 	hostsSlice := make([]string, 0)
 
 	for _, ip := range inputLog {
@@ -63,17 +83,17 @@ func getDomainHosts(inputLog []string) ([]string, error) {
 
 				for _, hostName := range hosts {
 					hostsSlice = append(hostsSlice, hostName)
+					writeBytesToOutput(ip, hostName, out)
 					fmt.Printf("\tFor IP address %#v found host name: %#v\n", ip, hostName)
 				}
 			}
 		}
 	}
-	fmt.Println()
 
 	return hostsSlice, nil
 }
 
-func getDomainIPs(inputLog []string) ([]string, error) {
+func getDomainIPs(inputLog []string, out *os.File) ([]string, error) {
 	return nil, nil
 }
 
