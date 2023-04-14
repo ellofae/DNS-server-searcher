@@ -12,6 +12,7 @@ type flagRequest struct {
 	inputFileFlag  string
 	outFileFlag    string
 	getDomainNames bool
+	getDomainIPs   bool
 }
 
 var flagRequestStructure flagRequest
@@ -32,6 +33,8 @@ func main() {
 			flagRequestStructure.outFileFlag = flagSlice[1]
 		case "-d":
 			flagRequestStructure.getDomainNames = true
+		case "-i":
+			flagRequestStructure.getDomainIPs = true
 		default:
 			log.Println("Incorrect argument was passed")
 		}
@@ -41,7 +44,15 @@ func main() {
 		fmt.Println("Mapping IP addresses with its domain host names:")
 		hosts, err := dns.DomainProcess(flagRequestStructure.inputFileFlag, flagRequestStructure.outFileFlag, 'd')
 		if err == nil {
-			fmt.Printf("*recived hosts: %#v\n", hosts)
+			fmt.Printf("\n*recived hosts: %#v\n\n", hosts)
 		}
+
+	} else if flagRequestStructure.getDomainIPs {
+		fmt.Println("Mapping domain hosts names with its IP addresses")
+		IPs, err := dns.DomainProcess(flagRequestStructure.inputFileFlag, flagRequestStructure.outFileFlag, 'i')
+		if err == nil {
+			fmt.Printf("\n*recived IPs: %#v\n\n", IPs)
+		}
+
 	}
 }

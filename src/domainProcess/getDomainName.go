@@ -94,7 +94,26 @@ func getDomainHosts(inputLog []string, out *os.File) ([]string, error) {
 }
 
 func getDomainIPs(inputLog []string, out *os.File) ([]string, error) {
-	return nil, nil
+	ipsSlice := make([]string, 0)
+
+	for _, host := range inputLog {
+
+		hostCheck := net.ParseIP(host)
+		if hostCheck == nil {
+			hosts, err := getIPs(host)
+
+			if err == nil {
+
+				for _, ip := range hosts {
+					ipsSlice = append(ipsSlice, ip)
+					writeBytesToOutput(host, ip, out)
+					fmt.Printf("\tFor domain host name %#v found IP: %#v\n", host, ip)
+				}
+			}
+		}
+	}
+
+	return ipsSlice, nil
 }
 
 // Getting names mapped to an IP address helping function
@@ -108,6 +127,11 @@ func getHosts(ip string) ([]string, error) {
 }
 
 // Getting IP addresses mapped to domain hosts names helping function
-func getIPs() {
+func getIPs(host string) ([]string, error) {
+	IPs, err := net.LookupHost(host)
+	if err != nil {
+		return nil, err
+	}
 
+	return IPs, nil
 }
